@@ -1,0 +1,474 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>67 Speed — Arm Speed Challenge</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    font-family: 'Trebuchet MS', system-ui, sans-serif;
+    background: #0a0a0f;
+    color: #fff;
+    overflow: hidden;
+  }
+  .app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
+  }
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 900;
+    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(131, 56, 236, 0.5);
+    margin-bottom: 0.2em;
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    color: #aaa;
+    margin-bottom: 1.5em;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+  }
+  .screen.active { display: flex; }
+  .btn {
+    background: linear-gradient(45deg, #ff006e, #8338ec);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+    transition: transform 0.15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .video-container {
+    position: relative;
+    width: min(85vw, 560px);
+    aspect-ratio: 4/3;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 3px solid #8338ec;
+    box-shadow: 0 0 40px rgba(131, 56, 236, 0.4);
+  }
+  #webcam, #canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(-1);
+    object-fit: cover;
+  }
+  #canvas { pointer-events: none; }
+  .hud {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .hud-item {
+    background: rgba(0,0,0,0.6);
+    padding: 0.6rem 1.2rem;
+    border-radius: 15px;
+    border: 1px solid rgba(131, 56, 236, 0.3);
+    text-align: center;
+  }
+  .hud-item .label { color: #aaa; font-size: 0.75rem; text-transform: uppercase; }
+  .hud-item .value { color: #fff; font-size: 1.8rem; font-weight: 900; line-height: 1; }
+  .timer { color: #ff006e; }
+  .score { color: #3a86ff; }
+  .result .big-score {
+    font-size: clamp(5rem, 15vw, 10rem);
+    font-weight: 900;
+    background: linear-gradient(45deg, #ff006e, #8338ec);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .result .label { color: #aaa; font-size: 1.1rem; margin-top: 0.5rem; }
+  .rank {
+    font-size: 1.3rem;
+    margin: 1rem 0;
+    padding: 0.5rem 1.5rem;
+    border-radius: 30px;
+    display: inline-block;
+    font-weight: bold;
+  }
+  .rank-bronze { background: #cd7f32; }
+  .rank-silver { background: linear-gradient(45deg, #aaa, #fff); color: #000; }
+  .rank-gold   { background: linear-gradient(45deg, #ffd700, #ffae00); color: #000; }
+  .rank-elite  { background: linear-gradient(45deg, #ff006e, #8338ec); }
+  .footer {
+    position: absolute;
+    bottom: 8px;
+    color: #555;
+    font-size: 0.75rem;
+  }
+  .pulse {
+    animation: pulse 0.3s ease-out;
+  }
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.4); color: #ff006e; }
+    100% { transform: scale(1); }
+  }
+  .sensitivity-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.5rem;
+    color: #aaa;
+    font-size: 0.9rem;
+  }
+  input[type=range] { width: 140px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div id="startScreen" class="screen active">
+    <h1>67 SPEED</h1>
+    <p class="subtitle">Pump your arms up & down as fast as you can.<br>20 seconds. Camera stays on your device.</p>
+    <div class="sensitivity-row">
+      Sensitivity:
+      <input type="range" id="sensitivity" min="1" max="10" value="5" />
+      <span id="sensVal">5</span>
+    </div>
+    <button id="startBtn" class="btn">▶ Start Challenge</button>
+  </div>
+
+  <div id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-item timer">
+        <div class="label">Time</div>
+        <div class="value" id="timerDisplay">20.0</div>
+      </div>
+      <div class="hud-item score">
+        <div class="label">Score</div>
+        <div class="value" id="scoreDisplay">0</div>
+      </div>
+    </div>
+    <div class="video-container">
+      <video id="webcam" autoplay playsinline muted></video>
+      <canvas id="canvas"></canvas>
+    </div>
+  </div>
+
+  <div id="endScreen" class="screen">
+    <div class="result">
+      <h1>Time's Up!</h1>
+      <div class="big-score" id="finalScore">0</div>
+      <div class="label">reps in 20 seconds</div>
+      <div id="rankBadge" class="rank">—</div>
+      <br/>
+      <button id="againBtn" class="btn">↻ Play Again</button>
+    </div>
+  </div>
+
+  <div class="footer">Local processing • No data uploaded</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+<script>
+(() => {
+  const startScreen = document.getElementById('startScreen');
+  const gameScreen  = document.getElementById('gameScreen');
+  const endScreen   = document.getElementById('endScreen');
+  const startBtn    = document.getElementById('startBtn');
+  const againBtn    = document.getElementById('againBtn');
+  const videoEl     = document.getElementById('webcam');
+  const canvasEl    = document.getElementById('canvas');
+  const ctx         = canvasEl.getContext('2d');
+  const timerEl     = document.getElementById('timerDisplay');
+  const scoreEl     = document.getElementById('scoreDisplay');
+  const finalScoreEl= document.getElementById('finalScore');
+  const rankBadgeEl = document.getElementById('rankBadge');
+  const sensInput   = document.getElementById('sensitivity');
+  const sensVal     = document.getElementById('sensVal');
+
+  const GAME_DURATION = 20;
+  let score = 0;
+  let timerValue = GAME_DURATION;
+  let gameRunning = false;
+  let timerInterval = null;
+  let pose = null;
+  let stream = null;
+
+  // ====== NEW DETECTION STATE ======
+  // Sliding window of average wrist Y positions
+  const WINDOW = 4;             // 4 frames is enough for fast movement
+  const wristYHistory = [];
+  let lastExtremum = null;      // 'max' (arms down) | 'min' (arms up) | null
+  let calibMin = 1, calibMax = 0;  // adaptive amplitude tracking
+  let lastWristY = null;        // for the trail line
+
+  sensInput.addEventListener('input', () => { sensVal.textContent = sensInput.value; });
+
+  function showScreen(name) {
+    [startScreen, gameScreen, endScreen].forEach(s => s.classList.remove('active'));
+    document.getElementById(name + 'Screen').classList.add('active');
+  }
+
+  function getRank(n) {
+    if (n >= 80) return { name: 'ELITE 🔥', cls: 'rank-elite' };
+    if (n >= 60) return { name: 'GOLD 🥇', cls: 'rank-gold' };
+    if (n >= 40) return { name: 'SILVER 🥈', cls: 'rank-silver' };
+    return { name: 'BRONZE 🥉', cls: 'rank-bronze' };
+  }
+
+  async function initCamera() {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 640, height: 480, facingMode: 'user' },
+      audio: false
+    });
+    videoEl.srcObject = stream;
+    await new Promise(res => { videoEl.onloadedmetadata = res; });
+  }
+
+  function setupPose() {
+    pose = new Pose({
+      locateFile: file => `https://[1cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+    pose.setOptions({
+      modelComplexity: 0,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+    pose.onResults(onPoseResults);
+  }
+
+  async function startDetection() {
+    const camera = new Camera(videoEl, {
+      onFrame: async () => {
+        if (pose && videoEl.readyState >= 2) {
+          await pose.send({ image: videoEl });
+        }
+      },
+      width: 640, height: 480
+    });
+    camera.start();
+  }
+
+  // ====================== CORE: PEAK/VALLEY REP DETECTION ======================
+  function processWristY(y) {
+    if (y == null || isNaN(y)) return;
+
+    // Update adaptive range (learns the user's full amplitude over time)
+    calibMin = Math.min(calibMin, y);
+    calibMax = Math.max(calibMax, y);
+    const amplitude = calibMax - calibMin;
+
+    // Sensitivity slider: 1 (needs big movement) → 10 (very sensitive)
+    const sens = parseInt(sensInput.value, 10);
+    // minAmplitude between 0.03 (very sensitive) and 0.20 (strict)
+    const minAmplitude = 0.20 - (sens - 1) * (0.17 / 9);
+
+    // Sliding window
+    wristYHistory.push(y);
+    if (wristYHistory.length > WINDOW) wristYHistory.shift();
+
+    // If amplitude is too small, no real movement yet — skip
+    if (amplitude < minAmplitude) return;
+    if (wristYHistory.length < WINDOW) return;
+
+    // Detect local extremum in the current window:
+    // A point is a MAX if no other point in the window is strictly greater
+    // A point is a MIN if no other point in the window is strictly smaller
+    const current = wristYHistory[wristYHistory.length - 1];
+    let isMax = true, isMin = true;
+    for (let i = 0; i < wristYHistory.length - 1; i++) {
+      if (wristYHistory[i] > current) isMax = false;
+      if (wristYHistory[i] < current) isMin = false;
+    }
+
+    // Count a rep each time we hit an extremum that is the OPPOSITE of the last one
+    // (so up→down or down→up each = 1 rep, alternated)
+    if (isMax && lastExtremum !== 'max') {
+      if (lastExtremum === 'min') {
+        score++;
+        scoreEl.textContent = score;
+        scoreEl.classList.remove('pulse');
+        // force reflow to restart animation
+        void scoreEl.offsetWidth;
+        scoreEl.classList.add('pulse');
+      }
+      lastExtremum = 'max';
+    } else if (isMin && lastExtremum !== 'min') {
+      if (lastExtremum === 'max') {
+        score++;
+        scoreEl.textContent = score;
+        scoreEl.classList.remove('pulse');
+        void scoreEl.offsetWidth;
+        scoreEl.classList.add('pulse');
+      }
+      lastExtremum = 'min';
+    }
+  }
+  // ============================================================================
+
+  function onPoseResults(results) {
+    canvasEl.width = videoEl.videoWidth;
+    canvasEl.height = videoEl.videoHeight;
+    ctx.save();
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+    if (results.poseLandmarks) {
+      const lm = results.poseLandmarks;
+      const lw = lm[15], rw = lm[16];
+      const ls = lm[11], rs = lm[12];
+
+      // Draw skeleton + landmarks (in mirrored coords, the original landmarks are
+      // already in their natural orientation so we just draw normally)
+      drawConnectors(ctx, lm, POSE_CONNECTIONS, { color: '#8338ec', lineWidth: 3 });
+      drawLandmarks(ctx, lm, { color: '#ff006e', lineWidth: 2, radius: 4 });
+
+      if (lw && rw && ls && rs && lw.visibility > 0.5 && rw.visibility > 0.5) {
+        // Average normalized wrist Y (0 = top, 1 = bottom)
+        const avgY = (lw.y + rw.y) / 2;
+        processWristY(avgY);
+        lastWristY = avgY;
+
+        // ===== HUD overlay on canvas =====
+        const W = canvasEl.width, H = canvasEl.height;
+
+        // Title strip
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(10, 10, 260, 90);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('Reps: ' + score, 22, 32);
+        ctx.fillStyle = lastExtremum === 'max' ? '#ff006e' : (lastExtremum === 'min' ? '#3a86ff' : '#aaa');
+        ctx.fillText('State: ' + (lastExtremum ? lastExtremum.toUpperCase() : '—'), 22, 55);
+        ctx.fillStyle = '#aaa';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('Amplitude: ' + (calibMax - calibMin).toFixed(3), 22, 75);
+        ctx.fillText('Wrist Y: ' + avgY.toFixed(3), 22, 92);
+
+        // Vertical position bar (left side)
+        const barX = W - 40, barY = 20, barH = H - 40, barW = 16;
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(barX, barY, barW, barH);
+        // show the user's learned range
+        const rangeY1 = barY + (1 - calibMax) * barH;
+        const rangeY2 = barY + (1 - calibMin) * barH;
+        ctx.fillStyle = 'rgba(131, 56, 236, 0.3)';
+        ctx.fillRect(barX, Math.min(rangeY1, rangeY2), barW, Math.abs(rangeY2 - rangeY1));
+        // current position
+        const dotY = barY + (1 - avgY) * barH;
+        ctx.fillStyle = '#ff006e';
+        ctx.beginPath();
+        ctx.arc(barX + barW/2, dotY, 8, 0, Math.PI*2);
+        ctx.fill();
+      }
+    } else {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(10, 10, 280, 35);
+      ctx.fillStyle = '#ff5577';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('⚠ Stand in front of camera', 20, 33);
+    }
+    ctx.restore();
+  }
+
+  function startGame() {
+    score = 0;
+    timerValue = GAME_DURATION;
+    lastExtremum = null;
+    calibMin = 1; calibMax = 0;
+    wristYHistory.length = 0;
+    scoreEl.textContent = '0';
+    timerEl.textContent = GAME_DURATION.toFixed(1);
+    showScreen('game');
+    gameRunning = true;
+
+    timerInterval = setInterval(() => {
+      timerValue -= 0.1;
+      if (timerValue <= 0) {
+        timerValue = 0;
+        endGame();
+      }
+      timerEl.textContent = timerValue.toFixed(1);
+    }, 100);
+  }
+
+  function endGame() {
+    gameRunning = false;
+    clearInterval(timerInterval);
+    finalScoreEl.textContent = score;
+    const rank = getRank(score);
+    rankBadgeEl.textContent = rank.name;
+    rankBadgeEl.className = 'rank ' + rank.cls;
+    showScreen('end');
+  }
+
+  startBtn.addEventListener('click', async () => {
+    startBtn.disabled = true;
+    startBtn.textContent = 'Loading...';
+    try {
+      await initCamera();
+      setupPose();
+      await startDetection();
+      setTimeout(startGame, 600);
+    } catch (e) {
+      alert('Camera error: ' + e.message);
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Start Challenge';
+    }
+  });
+
+  againBtn.addEventListener('click', () => {
+    setTimeout(startGame, 200);
+  });
+})();
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
