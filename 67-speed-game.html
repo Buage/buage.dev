@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>67 SPEED — pompe le plus vite possible</title>
+<style>
+  :root{
+    --bg:#0b0114;
+    --pink:#ff2e6d;
+    --cyan:#17e6ff;
+    --yellow:#ffd23f;
+    --ink:#f5f0ff;
+    --muted:#a68fc9;
+    --line:rgba(245,240,255,0.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  button{font-family:inherit;}
+  #app{
+    position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;
+    background:
+      radial-gradient(circle at 25% 10%, #2b1049 0%, transparent 55%),
+      radial-gradient(circle at 85% 90%, #170a2c 0%, transparent 60%),
+      var(--bg);
+  }
+  video{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    transform:scaleX(-1);
+    filter:saturate(1.15) contrast(1.05) brightness(0.75);
+    z-index:0;
+  }
+  #app.mode-fallback video{display:none;}
+  .vignette{
+    position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:
+      linear-gradient(to bottom, rgba(11,1,20,0.8) 0%, rgba(11,1,20,0.1) 24%, rgba(11,1,20,0.05) 68%, rgba(11,1,20,0.88) 100%),
+      radial-gradient(ellipse at center, transparent 38%, rgba(11,1,20,0.55) 100%);
+  }
+  .scan{
+    position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0.12;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .screen{
+    position:absolute;inset:0;z-index:3;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:6vh 6vw;text-align:center;
+  }
+  .screen.active{display:flex;}
+
+  /* ---- START ---- */
+  .logo{
+    font-family:"Arial Black","Helvetica Neue",sans-serif;
+    font-weight:900;line-height:0.82;margin:0 0 0.8rem 0;
+    font-size:clamp(3.4rem,15vw,7.5rem);letter-spacing:-0.02em;color:var(--ink);
+  }
+  .logo em{
+    display:block;font-style:normal;font-size:0.3em;letter-spacing:0.4em;
+    color:var(--pink);-webkit-text-stroke:1px var(--cyan);margin-top:0.3em;
+  }
+  .tagline{color:var(--muted);font-size:clamp(0.95rem,2.4vw,1.15rem);max-width:32rem;margin:0 0 1.6rem;}
+  .rules{
+    display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;max-width:34rem;margin-bottom:2rem;
+  }
+  .rules li{
+    list-style:none;border:1px solid var(--line);border-radius:999px;
+    padding:0.35rem 0.9rem;font-size:0.8rem;color:var(--ink);opacity:0.85;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;
+  }
+  .btn-primary,.btn-ghost{
+    border-radius:14px;padding:0.95rem 2.2rem;font-size:1.05rem;font-weight:700;
+    cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{
+    border:none;background:linear-gradient(135deg,var(--pink),#ff6b9d);
+    color:#1a0311;box-shadow:0 8px 24px -8px rgba(255,46,109,0.6);
+    margin-bottom:0.8rem;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    background:transparent;border:1px solid var(--line);color:var(--ink);
+  }
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+  .btn-primary:focus-visible,.btn-ghost:focus-visible,.hud-btn:focus-visible{
+    outline:2px solid var(--cyan);outline-offset:3px;
+  }
+  #camera-error{
+    display:none;margin-top:1.2rem;max-width:30rem;color:var(--yellow);
+    font-size:0.85rem;border:1px dashed rgba(255,210,63,0.5);border-radius:12px;padding:0.9rem 1.1rem;
+  }
+  #camera-error button{
+    margin-top:0.6rem;background:none;border:1px solid var(--yellow);color:var(--yellow);
+    border-radius:8px;padding:0.4rem 0.9rem;cursor:pointer;font-size:0.8rem;
+  }
+  .disclaimer{position:absolute;bottom:1.2rem;left:0;right:0;font-size:0.72rem;color:var(--muted);opacity:0.75;padding:0 6vw;}
+
+  /* ---- READY / COUNTDOWN ---- */
+  #countdown-num{
+    font-family:"Arial Black","Helvetica Neue",sans-serif;font-weight:900;
+    font-size:clamp(6rem,28vw,13rem);color:var(--cyan);line-height:1;
+    text-shadow:0 0 40px rgba(23,230,255,0.5);
+  }
+  #countdown-num.pulse{animation:pop .55s ease;}
+  @keyframes pop{0%{transform:scale(0.6);opacity:0;}55%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);}}
+  #screen-ready p{color:var(--muted);margin-top:0.6rem;font-size:0.95rem;}
+
+  /* ---- PLAY / HUD ---- */
+  #screen-play{padding:4vh 5vw;justify-content:space-between;}
+  .top-bar{width:100%;display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;}
+  .chip{
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;
+    background:rgba(11,1,20,0.55);border:1px solid var(--line);border-radius:12px;
+    padding:0.5rem 0.9rem;font-size:0.85rem;letter-spacing:0.04em;backdrop-filter:blur(6px);
+  }
+  .chip b{color:var(--yellow);font-size:1.1em;}
+  #mode-badge{
+    position:absolute;top:1.2rem;left:50%;transform:translateX(-50%);
+    background:rgba(23,230,255,0.12);border:1px solid var(--cyan);color:var(--cyan);
+    font-size:0.7rem;letter-spacing:0.12em;border-radius:999px;padding:0.3rem 0.8rem;
+  }
+  #mode-badge[hidden]{display:none;}
+
+  .mid-row{display:flex;align-items:center;justify-content:center;gap:6vw;width:100%;flex:1;}
+  .gauge-wrap{
+    position:relative;width:14px;height:min(48vh,340px);border-radius:999px;
+    background:rgba(245,240,255,0.08);border:1px solid var(--line);overflow:hidden;
+  }
+  .gauge-wrap .zone{position:absolute;left:0;right:0;}
+  .zone.up{top:0;height:40%;background:linear-gradient(180deg, rgba(23,230,255,0.35), transparent);}
+  .zone.down{bottom:0;height:38%;background:linear-gradient(0deg, rgba(255,46,109,0.35), transparent);}
+  #gauge-marker{
+    position:absolute;left:-4px;right:-4px;height:10px;border-radius:999px;
+    background:var(--ink);box-shadow:0 0 12px 3px rgba(245,240,255,0.7);
+    top:50%;transform:translateY(-50%);transition:top .05s linear;
+  }
+  .gauge-wrap.flash #gauge-marker{background:var(--yellow);}
+
+  .score-wrap{text-align:center;}
+  #score-val{
+    font-family:"Arial Black","Helvetica Neue",sans-serif;font-weight:900;
+    font-size:clamp(5rem,22vw,10rem);line-height:1;color:var(--ink);
+    text-shadow:0 0 30px rgba(255,46,109,0.35);
+  }
+  #score-val.pulse{animation:scorepop .28s ease;}
+  @keyframes scorepop{0%{transform:scale(1);}40%{transform:scale(1.18);color:var(--pink);}100%{transform:scale(1);}}
+  .score-label{font-size:0.8rem;letter-spacing:0.35em;color:var(--muted);margin-top:-0.4rem;}
+  #record-toast{
+    position:absolute;top:20%;left:50%;transform:translate(-50%,-10px);
+    font-family:ui-monospace,monospace;font-weight:700;color:var(--yellow);
+    background:rgba(11,1,20,0.7);border:1px solid var(--yellow);border-radius:10px;
+    padding:0.4rem 0.9rem;font-size:0.85rem;opacity:0;pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  #record-toast.show{opacity:1;transform:translate(-50%,0);}
+
+  #fallback-controls{display:flex;gap:1rem;width:100%;justify-content:center;}
+  .hud-btn{
+    flex:1;max-width:220px;padding:1.1rem 0;border-radius:16px;border:1px solid var(--line);
+    background:rgba(245,240,255,0.06);color:var(--ink);font-size:1rem;font-weight:700;
+    letter-spacing:0.05em;cursor:pointer;
+  }
+  .hud-btn:active{background:rgba(23,230,255,0.18);border-color:var(--cyan);}
+  #screen-play.fallback-hidden #fallback-controls{display:none;}
+  #screen-play:not(.is-fallback) #fallback-controls{display:none;}
+
+  /* ---- END ---- */
+  #final-score{
+    font-family:"Arial Black","Helvetica Neue",sans-serif;font-weight:900;
+    font-size:clamp(5.5rem,24vw,11rem);color:var(--pink);line-height:1;
+    text-shadow:0 0 40px rgba(255,46,109,0.45);
+  }
+  #final-msg{color:var(--ink);font-size:1.05rem;margin:0.4rem 0 1.6rem;max-width:26rem;}
+  .best-line{color:var(--muted);font-size:0.85rem;margin-bottom:1.6rem;}
+  .best-line span{color:var(--cyan);font-weight:700;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <video id="video" autoplay playsinline muted></video>
+  <div class="vignette"></div>
+  <div class="scan"></div>
+  <div id="mode-badge" hidden>MODE CLAVIER</div>
+
+  <!-- START -->
+  <section id="screen-start" class="screen active">
+    <h1 class="logo">67<em>SPEED</em></h1>
+    <p class="tagline">Pompe tes bras (ou tes mains) le plus vite possible pendant 20 secondes. La caméra compte chaque aller-retour en temps réel.</p>
+    <ul class="rules">
+      <li>20 secondes</li>
+      <li>100% local, rien n'est envoyé</li>
+      <li>1 mouvement complet = 1 point</li>
+    </ul>
+    <button id="btn-start" class="btn-primary">Activer la caméra &amp; jouer</button>
+    <button id="btn-fallback" class="btn-ghost">Pas de caméra ? Mode clavier</button>
+    <div id="camera-error">
+      Impossible d'accéder à la caméra (permission refusée, ou fichier ouvert en local sans serveur — <code>file://</code> bloque souvent l'accès caméra : lance-le via <code>python3 -m http.server</code> ou héberge-le en HTTPS).
+      <br>
+      <button id="btn-fallback-2">Continuer en mode clavier</button>
+    </div>
+    <p class="disclaimer">Recréation non-officielle, inspirée du jeu viral "67 Speed" / du mème "six seven". Non affiliée à 67speed.com. Le traitement caméra reste entièrement local à ton navigateur.</p>
+  </section>
+
+  <!-- READY -->
+  <section id="screen-ready" class="screen">
+    <div id="countdown-num">3</div>
+    <p>Cadre ton buste, bras visibles, prépare-toi à pomper...</p>
+  </section>
+
+  <!-- PLAY -->
+  <section id="screen-play" class="screen">
+    <div class="top-bar">
+      <div class="chip">⏱ <span id="timer-val">20.0</span>s</div>
+      <div class="chip">MEILLEUR <b id="best-val">0</b></div>
+    </div>
+    <div class="mid-row">
+      <div class="gauge-wrap" id="gauge">
+        <div class="zone up"></div>
+        <div class="zone down"></div>
+        <div id="gauge-marker"></div>
+      </div>
+      <div class="score-wrap" style="position:relative;">
+        <div id="record-toast">NOUVEAU RECORD !</div>
+        <div id="score-val">0</div>
+        <div class="score-label">PUMPS</div>
+      </div>
+    </div>
+    <div id="fallback-controls">
+      <button class="hud-btn" id="btn-up" data-dir="up">↑ HAUT</button>
+      <button class="hud-btn" id="btn-down" data-dir="down">↓ BAS</button>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="screen-end" class="screen">
+    <h2 style="margin:0 0 0.4rem;color:var(--muted);font-weight:600;letter-spacing:0.1em;font-size:0.9rem;">TEMPS ÉCOULÉ</h2>
+    <div id="final-score">0</div>
+    <p id="final-msg"></p>
+    <p class="best-line">Meilleur score (cette session) : <span id="end-best">0</span></p>
+    <button id="btn-restart" class="btn-primary">Rejouer</button>
+    <button id="btn-home" class="btn-ghost">Menu</button>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Réglages (modifiables si besoin) ----------
+  const ROUND_SECONDS = 20;
+  const PROC_W = 48, PROC_H = 36;     // résolution de traitement (petite = rapide)
+  const MOTION_EPS = 14;              // seuil de diff de luminance par pixel pour compter comme "mouvement"
+  const MOTION_FLOOR = 500;           // quantité totale de mouvement minimale pour mettre à jour le suivi
+  const UP_ZONE = 0.40;               // sous ce seuil (0=haut image) => mouvement concentré en haut = "bras levés"
+  const DOWN_ZONE = 0.62;             // au-dessus => mouvement concentré en bas = "bras baissés"
+  const MIN_REP_MS = 150;             // anti-rebond entre deux points
+  const SMOOTHING = 0.28;             // lissage exponentiel du centre de mouvement
+
+  // ---------- Etat ----------
+  let mode = null;        // 'camera' | 'fallback'
+  let stream = null;
+  let playing = false;
+  let score = 0;
+  let sessionBest = 0;
+  let armState = 'down';
+  let lastKey = 'down';
+  let smoothY = 0.5;
+  let prevFrame = null;
+  let lastRepTime = 0;
+  let endTime = 0;
+  let rafFrame = null, rafTimer = null;
+  let recordShown = false;
+
+  // ---------- Eléments ----------
+  const app = document.getElementById('app');
+  const video = document.getElementById('video');
+  const modeBadge = document.getElementById('mode-badge');
+
+  const screens = {
+    start: document.getElementById('screen-start'),
+    ready: document.getElementById('screen-ready'),
+    play: document.getElementById('screen-play'),
+    end: document.getElementById('screen-end'),
+  };
+  function showScreen(name){
+    Object.values(screens).forEach(s=>s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  const btnStart = document.getElementById('btn-start');
+  const btnFallback = document.getElementById('btn-fallback');
+  const btnFallback2 = document.getElementById('btn-fallback-2');
+  const cameraError = document.getElementById('camera-error');
+  const countdownEl = document.getElementById('countdown-num');
+
+  const timerEl = document.getElementById('timer-val');
+  const bestEl = document.getElementById('best-val');
+  const scoreEl = document.getElementById('score-val');
+  const gaugeEl = document.getElementById('gauge');
+  const markerEl = document.getElementById('gauge-marker');
+  const recordToast = document.getElementById('record-toast');
+  const fallbackControls = document.getElementById('fallback-controls');
+  const btnUp = document.getElementById('btn-up');
+  const btnDown = document.getElementById('btn-down');
+
+  const finalScoreEl = document.getElementById('final-score');
+  const finalMsgEl = document.getElementById('final-msg');
+  const endBestEl = document.getElementById('end-best');
+  const btnRestart = document.getElementById('btn-restart');
+  const btnHome = document.getElementById('btn-home');
+
+  // canvas de traitement hors-DOM
+  const proc = document.createElement('canvas');
+  proc.width = PROC_W; proc.height = PROC_H;
+  const pctx = proc.getContext('2d', { willReadFrequently: true });
+
+  // ---------- Caméra ----------
+  async function startCamera(){
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } },
+        audio:false
+      });
+      video.srcObject = stream;
+      await video.play();
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+  function stopCamera(){
+    if(stream){
+      stream.getTracks().forEach(t=>t.stop());
+      stream = null;
+      video.srcObject = null;
+    }
+  }
+  window.addEventListener('pagehide', stopCamera);
+
+  // ---------- Flux de démarrage ----------
+  async function startFlow(selMode){
+    mode = selMode;
+    cameraError.style.display = 'none';
+    app.classList.toggle('mode-fallback', mode === 'fallback');
+    modeBadge.hidden = mode !== 'fallback';
+
+    if(mode === 'camera'){
+      const ok = await startCamera();
+      if(!ok){
+        cameraError.style.display = 'block';
+        mode = null;
+        return;
+      }
+    }
+    runCountdown();
+  }
+  btnStart.addEventListener('click', ()=>startFlow('camera'));
+  btnFallback.addEventListener('click', ()=>startFlow('fallback'));
+  btnFallback2.addEventListener('click', ()=>startFlow('fallback'));
+
+  function runCountdown(){
+    showScreen('ready');
+    let n = 3;
+    countdownEl.textContent = n;
+    bump(countdownEl);
+    const iv = setInterval(()=>{
+      n--;
+      if(n > 0){
+        countdownEl.textContent = n;
+      } else if(n === 0){
+        countdownEl.textContent = 'GO !';
+      } else {
+        clearInterval(iv);
+        showScreen('play');
+        startRound();
+        return;
+      }
+      bump(countdownEl);
+    }, 650);
+  }
+  function bump(el){
+    el.classList.remove('pulse');
+    void el.offsetWidth;
+    el.classList.add('pulse');
+  }
+
+  // ---------- Manche ----------
+  function startRound(){
+    playing = true;
+    score = 0;
+    armState = 'down';
+    lastKey = 'down';
+    smoothY = 0.5;
+    prevFrame = null;
+    recordShown = false;
+    lastRepTime = 0;
+    scoreEl.textContent = '0';
+    bestEl.textContent = sessionBest;
+    recordToast.classList.remove('show');
+    endTime = performance.now() + ROUND_SECONDS * 1000;
+
+    screens.play.classList.toggle('is-fallback', mode === 'fallback');
+
+    if(mode === 'camera'){
+      rafFrame = requestAnimationFrame(frameTick);
+    }
+    rafTimer = requestAnimationFrame(timerTick);
+  }
+
+  function timerTick(){
+    if(!playing) return;
+    const remain = Math.max(0, endTime - performance.now());
+    timerEl.textContent = (remain/1000).toFixed(1);
+    if(remain <= 0){
+      endRound();
+      return;
+    }
+    rafTimer = requestAnimationFrame(timerTick);
+  }
+
+  function frameTick(){
+    if(!playing || mode !== 'camera') return;
+    pctx.drawImage(video, 0, 0, PROC_W, PROC_H);
+    const data = pctx.getImageData(0, 0, PROC_W, PROC_H).data;
+
+    if(!prevFrame){
+      prevFrame = new Float32Array(PROC_W * PROC_H);
+      for(let p=0, i=0; p<data.length; p+=4, i++){
+        prevFrame[i] = 0.299*data[p] + 0.587*data[p+1] + 0.114*data[p+2];
+      }
+      rafFrame = requestAnimationFrame(frameTick);
+      return;
+    }
+
+    let totalMotion = 0, weightedY = 0;
+    for(let p=0, i=0; p<data.length; p+=4, i++){
+      const luma = 0.299*data[p] + 0.587*data[p+1] + 0.114*data[p+2];
+      const d = Math.abs(luma - prevFrame[i]);
+      prevFrame[i] = luma;
+      if(d > MOTION_EPS){
+        totalMotion += d;
+        weightedY += d * Math.floor(i / PROC_W);
+      }
+    }
+
+    if(totalMotion > MOTION_FLOOR){
+      const centroidY = (weightedY / totalMotion) / PROC_H;
+      smoothY = smoothY * (1 - SMOOTHING) + centroidY * SMOOTHING;
+    } else {
+      smoothY = smoothY * 0.95 + 0.5 * 0.05;
+    }
+
+    updateGauge(smoothY);
+    evaluateRep(smoothY);
+    rafFrame = requestAnimationFrame(frameTick);
+  }
+
+  function evaluateRep(y){
+    const now = performance.now();
+    if(y < UP_ZONE){
+      if(armState === 'down' && (now - lastRepTime) > MIN_REP_MS){
+        addPoint();
+        lastRepTime = now;
+      }
+      armState = 'up';
+    } else if(y > DOWN_ZONE){
+      armState = 'down';
+    }
+  }
+
+  function updateGauge(y){
+    markerEl.style.top = (Math.min(1, Math.max(0, y)) * 100) + '%';
+  }
+
+  function addPoint(){
+    score++;
+    scoreEl.textContent = score;
+    bump(scoreEl);
+    gaugeEl.classList.add('flash');
+    setTimeout(()=>gaugeEl.classList.remove('flash'), 120);
+    const currentBest = Math.max(sessionBest, score);
+    bestEl.textContent = currentBest;
+    if(sessionBest > 0 && score === sessionBest + 1 && !recordShown){
+      recordShown = true;
+      recordToast.classList.add('show');
+      setTimeout(()=>recordToast.classList.remove('show'), 1400);
+    }
+  }
+
+  // ---------- Mode clavier (fallback) ----------
+  function fallbackPress(dir){
+    if(!playing || mode !== 'fallback') return;
+    const now = performance.now();
+    if(dir !== lastKey && (now - lastRepTime) > MIN_REP_MS){
+      if(dir === 'up' && lastKey === 'down'){
+        addPoint();
+      }
+      lastKey = dir;
+      lastRepTime = now;
+      updateGauge(dir === 'up' ? 0.15 : 0.85);
+    }
+  }
+  btnUp.addEventListener('click', ()=>fallbackPress('up'));
+  btnDown.addEventListener('click', ()=>fallbackPress('down'));
+  window.addEventListener('keydown', (e)=>{
+    if(mode !== 'fallback' || !playing) return;
+    if(e.code === 'ArrowUp' || e.code === 'KeyW'){ fallbackPress('up'); }
+    else if(e.code === 'ArrowDown' || e.code === 'KeyS'){ fallbackPress('down'); }
+  });
+
+  // ---------- Fin de manche ----------
+  function endRound(){
+    playing = false;
+    if(rafFrame) cancelAnimationFrame(rafFrame);
+    if(rafTimer) cancelAnimationFrame(rafTimer);
+    if(score > sessionBest) sessionBest = score;
+    finalScoreEl.textContent = score;
+    endBestEl.textContent = sessionBest;
+    finalMsgEl.textContent = getMessage(score);
+    showScreen('end');
+  }
+
+  function getMessage(s){
+    if(s === 67) return "PILE 67. Légendaire.";
+    if(s >= 100) return "Bras robotisés détectés.";
+    if(s >= 68) return "Tu as explosé le 67.";
+    if(s >= 50) return "Tu frôles le mythique 67...";
+    if(s >= 20) return "Pas mal, mais tu peux mieux faire.";
+    return "Échauffe-toi encore un peu.";
+  }
+
+  btnRestart.addEventListener('click', ()=>{
+    runCountdown();
+  });
+  btnHome.addEventListener('click', ()=>{
+    stopCamera();
+    mode = null;
+    app.classList.remove('mode-fallback');
+    modeBadge.hidden = true;
+    showScreen('start');
+  });
+})();
+</script>
+</body>
+</html>
