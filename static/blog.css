@@ -2,7 +2,7 @@
     width: 700px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .post-thumbnail {
@@ -34,4 +34,14 @@
 
 #color-mode:checked ~ .wrapper.post-thumbnail {
     filter: invert(1);
+}
+
+@media (max-width: 610px) {
+    .post-thumbnail {
+        width: 90%;
+    }
+
+    .post-content {
+        width: 90%;
+    }
 }

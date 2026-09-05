@@ -148,3 +148,22 @@ hr {
 #color-mode:checked ~ .color-mode {
     filter: invert(1);
 }
+
+
+@media (max-width: 610px) {
+    .fake-body {
+        max-width: 100%;
+    }
+
+    .wrapper {
+        max-width: 100%;
+    }
+
+    .bio {
+        width: 90%;
+    }
+
+    .blog {
+        width: 90%;
+    }
+}
