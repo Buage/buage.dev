@@ -67,7 +67,8 @@ hr {
 
 .wrapper {
     width: 520px;
-    height: 85vh;
+    height: 90vh;
+    overflow-x: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
