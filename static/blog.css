@@ -1,0 +1,37 @@
+.wrapper {
+    width: 700px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.post-thumbnail {
+    width: 100%;
+}
+
+.post-content {
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.back-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    height: 40px;
+    width: 200px;
+    position: absolute;
+    top: 8px;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.back-btn svg {
+    color: var(--subtext);
+}
+
+#color-mode:checked ~ .wrapper.post-thumbnail {
+    filter: invert(1);
+}
