@@ -1,0 +1,206 @@
+# AI Crawler Index — policy: allow-ai-search-only
+# Allow AI search and user fetches, block the rest
+# Be findable and citable in assistants without contributing to training corpora.
+# Generated 2026-09-06 from https://www.pathwren.workers.dev/policy/allow-ai-search-only.html
+# 65 crawlers named. Paste into robots.txt at your document root.
+
+User-agent: AIWebIndex
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Andibot
+Allow: /
+
+User-agent: Anomura
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: atlassian-bot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: bedrockbot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-Web   # control token, no crawler uses this user-agent
+Allow: /
+
+User-agent: Cloudflare-AutoRAG
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: ExaSearchBot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Google-Agent   # operator states robots.txt does not apply; enforce at the edge
+Allow: /
+
+User-agent: Google-CloudVertexBot
+Allow: /
+
+User-agent: Google-GeminiNotebook   # operator states robots.txt does not apply; enforce at the edge
+Allow: /
+
+User-agent: Google-Pinpoint   # operator states robots.txt does not apply; enforce at the edge
+Allow: /
+
+User-agent: Google-Read-Aloud   # operator states robots.txt does not apply; enforce at the edge
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: GoogleMessages   # operator states robots.txt does not apply; enforce at the edge
+Allow: /
+
+User-agent: Kagibot
+Allow: /
+
+User-agent: KlaviyoAIBot
+Allow: /
+
+User-agent: meta-externalfetcher
+Allow: /
+
+User-agent: Meta-WebIndexer
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: MojeekBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Perplexity-User   # operator states robots.txt does not apply; enforce at the edge
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: PetalBot
+Allow: /
+
+User-agent: PhindBot
+Allow: /
+
+User-agent: Pinterestbot
+Allow: /
+
+User-agent: QualifiedBot
+Allow: /
+
+User-agent: Qwantbot
+Allow: /
+
+User-agent: Qwantbot-news
+Allow: /
+
+User-agent: SeznamBot
+Allow: /
+
+User-agent: ShapBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: Storebot-Google
+Allow: /
+
+User-agent: TerraCotta
+Allow: /
+
+User-agent: Timpibot
+Allow: /
+
+User-agent: YandexBlogs
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: YandexCalendar
+Allow: /
+
+User-agent: YandexComBot
+Allow: /
+
+User-agent: YandexFavicons
+Allow: /
+
+User-agent: YandexImages
+Allow: /
+
+User-agent: YandexMarket
+Allow: /
+
+User-agent: YandexMedia
+Allow: /
+
+User-agent: YandexMobileBot
+Allow: /
+
+User-agent: YandexRenderResourcesBot
+Allow: /
+
+User-agent: YandexVideo
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+# Anything not named above is refused.
+User-agent: *
+Disallow: /
+
+Sitemap: https://www.pathwren.workers.dev/sitemap.xml
