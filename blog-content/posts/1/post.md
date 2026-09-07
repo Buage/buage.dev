@@ -1,4 +1,4 @@
-![Thumbnail](https://buage.dev/blog/my-new-website-1/files/thumbnail.png)
+![Thumbnail](/blog-content/posts/1/files/thumbnail.png)
 
 ## My new website!
 _Wednesday, 19 August 2026_
