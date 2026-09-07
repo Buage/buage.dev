@@ -55,25 +55,31 @@ hr {
 
 * {
     &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0) !important;
+    background-color: var(--div-text) !important;
     border-radius: red;
 }
     &::-webkit-scrollbar-track {
         background-color: transparent;
     }
     &::-webkit-scrollbar {
-        width: 4px;
-        height: 4px;
+        width: 2px;
+        height: 2px;
         background-color: transparent !important;
+        opacity: 0.1;
     }
 }
 
 .wrapper {
     width: 520px;
-    height: 90vh;
+    height: auto;
+    max-height: 90%;
+    background-color: var(--div-glass);
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid var(--div-glass-text);
     overflow-x: hidden;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
     overflow-y: scroll;
@@ -113,6 +119,7 @@ hr {
     height: 40px;
     width: calc(100% - 40px);
     padding: 20px;
+    border-radius: 16px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
