@@ -16,10 +16,13 @@ body {
     align-items: center;
     position: absolute;
 
-    --bg: #F4F0EB;
-    --text: #141414;
-    --subtext: #6c6c6c;
-    --div: #e1d9ce;
+    --bg: #f5eaff;
+    --text: rgb(74, 47, 78);
+    --subtext: rgb(121, 99, 124);
+    --div: #e5d9ff;
+    --div-glass: #ccb6ff9a;
+    --div-glass-text: #442391;
+    --div-text: #3d315a;
 }
 
 .fake-body {
@@ -100,6 +103,10 @@ hr {
 .blog {
     width: 100%;
     height: auto;
+}
+
+.blog-post h3 {
+    color: var(--div-text);
 }
 
 .blog-post {

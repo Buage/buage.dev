@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+  <title>buage.dev</title>
+  <link>https://buage.dev</link>
+  <description>I do blog posts about what I like and want to share..</description>
+
+   <item>
+	<title>My brand new website!</title>
+	<link>https://buage.dev/blog/index.html?post=1</link>
+	<description>In this blog post, I am introducing a brand new design for my website!</description>
+  </item>
+
+</channel>
+</rss>

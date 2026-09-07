@@ -1,8 +1,9 @@
 .wrapper {
-    width: 700px;
+    width: 500px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    height: 90%;
 }
 
 .post-thumbnail {
@@ -13,6 +14,11 @@
     gap: 20px;
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
+}
+
+img {
+    width: 100%;
 }
 
 .back-btn {
@@ -23,13 +29,17 @@
     height: 40px;
     width: 200px;
     position: absolute;
-    top: 8px;
+    bottom: 60px;
     gap: 10px;
+    background-color: var(--div-glass);
+    backdrop-filter: blur(3px);
+    border-radius: 100px;
     text-decoration: none;
 }
 
-.back-btn svg {
-    color: var(--subtext);
+.back-btn svg,
+.back-btn p {
+    color: var(--div-glass-text);
 }
 
 #color-mode:checked ~ .wrapper.post-thumbnail {
