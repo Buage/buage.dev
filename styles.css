@@ -16,13 +16,13 @@ body {
     align-items: center;
     position: absolute;
 
-    --bg: #f5eaff;
-    --text: rgb(74, 47, 78);
-    --subtext: rgb(121, 99, 124);
-    --div: #e5d9ff;
-    --div-glass: #ccb6ff9a;
-    --div-glass-text: #442391;
-    --div-text: #3d315a;
+    --bg: #ffffff;
+    --text: rgb(59, 59, 59);
+    --subtext: rgb(121, 121, 121);
+    --div: #ededed;
+    --div-glass: #ebebeb9a;
+    --div-glass-text: #787878;
+    --div-text: #202020;
 }
 
 .fake-body {
