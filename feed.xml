@@ -11,6 +11,12 @@
 			<description>In this blog post, I am introducing a brand new design for my website!</description>
 			<pubDate>Fri Aug 19 2026 23:21:39 +0200</pubDate>
 		</item>
+		<item>
+			<title>Matrix vs Discord: which one is better..?</title>
+			<link>https://buage.dev/blog/index.html?post=2</link>
+			<description>Can Matrix be as good as Discord, for those seeking for an alternative?</description>
+			<pubDate>Fri Aug 19 2026 15:27:11 +0200</pubDate>
+		</item>
 		<atom:link href="http://buage.dev/rss.xml" rel="self" type="application/rss+xml"/>
 	</channel>
 </rss>
