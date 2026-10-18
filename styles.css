@@ -62,6 +62,15 @@ p {
     font-size: 18px;
 }
 
+.blog a {
+    padding: 20px;
+    background-color: var(--div);
+    border: 1px solid var(--div-glass);
+    text-decoration: none;
+    color: var(--div-text);
+    font-family: "Figtree", sans-serif;
+}
+
 h1 {
     font-size: 30px;
 }
